@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\Admin\DashboardController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -34,6 +35,13 @@ Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart
 Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
+// admin
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
+    Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
+    
+    Route::resource('products', \App\Http\Controllers\Admin\ProductController::class)->except(['show']);
+    Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class)->except(['show']);
+});
 
 require __DIR__.'/auth.php';

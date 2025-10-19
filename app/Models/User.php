@@ -10,6 +10,9 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    const ROLE_USER = 0;
+    const ROLE_ADMIN = 1;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -44,6 +47,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isAdmin(): bool // kiểm tra người dùng có phải admin không
+    {
+        return $this->role === self::ROLE_ADMIN;
     }
 
     public function orders()
@@ -86,4 +94,6 @@ class User extends Authenticatable
     {
         return $query->whereHas('orders');
     }
+
+
 }

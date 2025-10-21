@@ -1,45 +1,63 @@
-{{-- resources/views/admin/products/index.blade.php --}}
+@extends('layouts.admin')
 
-<div class="container" style="padding: 2rem;">
-    <h1>Danh Sách Sản Phẩm</h1>
+@section('title', 'Quản lý Sản phẩm')
+@section('header_title', 'Danh Sách Sản Phẩm')
+
+@section('content')
     <a href="{{ route('products.create') }}" style="display: inline-block; padding: 10px 15px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px;">Thêm Sản Phẩm Mới</a>
+    
+    @if (session('success'))
+        <div style="background-color: #d4edda; color: #155724; padding: 1rem; border-radius: 5px; margin-bottom: 20px;">
+            {{ session('success') }}
+        </div>
+    @endif
 
-    <table style="width: 100%; border-collapse: collapse;">
+    <table>
         <thead>
-            <tr style="background-color: #f2f2f2;">
-                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">ID</th>
-                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Hình Ảnh</th>
-                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Tên Sản Phẩm</th>
-                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Mô Tả</th> {{-- <- THÊM CỘT MỚI --}}
-                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Giá</th>
-                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Danh Mục</th>
-                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Hành Động</th>
+            <tr>
+                <th>ID</th>
+                <th>Hình Ảnh</th>
+                <th>Tên Sản Phẩm</th>
+                <th>Giá Biến Thể (VNĐ)</th>
+                <th>Tổng Tồn Kho</th>
+                <th>Danh Mục</th>
+                <th>Hành Động</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($products as $product)
                 <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;">{{ $product->id }}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">
-                        {{-- Đảm bảo code hiển thị ảnh là đúng --}}
+                    <td>{{ $product->id }}</td>
+                    <td>
                         @if($product->image)
                             <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" width="100">
                         @else
                             <span>Không có ảnh</span>
                         @endif
                     </td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">{{ $product->name }}</td>
-                    
-                    {{-- THÊM DỮ LIỆU MÔ TẢ & GIỚI HẠN KÝ TỰ --}}
-                    <td style="padding: 8px; border: 1px solid #ddd;">
-                        {{ \Illuminate\Support\Str::limit($product->description, 50, '...') }}
+                    <td>{{ $product->name }}</td>
+                    <td>
+                        {{-- Hiển thị khoảng giá nếu có biến thể --}}
+                        @if($product->variants->isNotEmpty())
+                            {{ number_format($product->variants->min('price')) }}
+                            -
+                            {{ number_format($product->variants->max('price')) }}
+                        @else
+                            <span style="color: #888;">Chưa có biến thể</span>
+                        @endif
                     </td>
-                    
-                    <td style="padding: 8px; border: 1px solid #ddd;">{{ number_format($product->price) }} VNĐ</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">{{ $product->category->name ?? 'N/A' }}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; display: flex; align-items: center; gap: 10px;">
+                    <td>
+                        {{-- Hiển thị tổng số lượng tồn kho --}}
+                        @if($product->variants->isNotEmpty())
+                            {{ $product->variants->sum('quantity') }}
+                        @else
+                            0
+                        @endif
+                    </td>
+                    <td>{{ $product->category->name ?? 'N/A' }}</td>
+                    <td style="display: flex; align-items: center; gap: 10px;">
                         <a href="{{ route('products.edit', $product->id) }}">Sửa</a>
-                        <form action="{{ route('products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');">
+                        <form action="{{ route('products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" style="background:none; border:none; color:red; cursor:pointer; padding:0;">Xóa</button>
@@ -48,13 +66,10 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" style="padding: 8px; border: 1px solid #ddd; text-align: center;">Chưa có sản phẩm nào.</td> {{-- <- Sửa colspan="7" --}}
+                    <td colspan="7" style="text-align: center;">Chưa có sản phẩm nào.</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
-
-    <div style="margin-top: 20px;">
-        {{ $products->links() }}
-    </div>
-</div>
+    <div style="margin-top: 20px;">{{ $products->links() }}</div>
+@endsection

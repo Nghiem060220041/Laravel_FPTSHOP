@@ -16,9 +16,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        // Dùng with('category') để lấy kèm thông tin danh mục
-        $products = Product::with('category')->latest()->paginate(10);
-
+        // Added 'variants' to eager load for the index page optimization
+        $products = Product::with('category', 'variants')->latest()->paginate(10);
         return view('admin.products.index', compact('products'));
     }
 
@@ -27,10 +26,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        // Lấy tất cả các danh mục để hiển thị trong form
-        $categories = Category::all(); 
-        
-        // Trả về view và truyền biến $categories qua
+        $categories = Category::all();
         return view('admin.products.create', compact('categories'));
     }
 
@@ -39,51 +35,53 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validate dữ liệu gửi lên
         $validatedData = $request->validate([
-        'name' => 'required|string|max:255',
-        'price' => 'required|numeric|min:0',
-        'category_id' => 'required|exists:categories,id',
-        'description' => 'nullable|string',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Kiểm tra là ảnh, định dạng và kích thước
+            // MODIFICATION: Added 'unique:products,name' to ensure the product name is unique
+            'name' => 'required|string|max:255|unique:products,name',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'variants' => 'nullable|array',
+            'variants.*.name' => 'required_with:variants|string|max:255',
+            'variants.*.price' => 'required_with:variants|numeric|min:0',
+            'variants.*.quantity' => 'required_with:variants|integer|min:0',
         ]);
 
-        // 2. Xử lý upload hình ảnh (nếu có)
         $imagePath = null;
         if ($request->hasFile('image')) {
-            // Lưu ảnh vào thư mục public/storage/products
             $imagePath = $request->file('image')->store('products', 'public');
         }
 
-        // 3. Tạo sản phẩm mới
-        Product::create([
+        // Create the main product
+        $product = Product::create([
             'name' => $validatedData['name'],
-            'price' => $validatedData['price'],
+            'price' => $request->price ?? 0,
             'description' => $validatedData['description'],
             'image' => $imagePath,
-            'slug'=> Str::slug($validatedData['name']),
+            'slug' => Str::slug($validatedData['name']),
             'category_id' => $validatedData['category_id']
         ]);
 
-        // 4. Chuyển hướng về trang danh sách sản phẩm với một thông báo thành công
-        return redirect()->route('products.index')->with('success', 'Thêm sản phẩm thành công!');    
+        // Create variants
+        if ($request->has('variants')) {
+            foreach ($request->variants as $variantData) {
+                if (!empty($variantData['name']) && isset($variantData['price']) && isset($variantData['quantity'])) {
+                    $product->variants()->create($variantData);
+                }
+            }
+        }
+
+        return redirect()->route('products.index')->with('success', 'Thêm sản phẩm thành công!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Product $product)
     {
-        //
         $categories = Category::all();
+        $product->load('variants');
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
@@ -92,30 +90,39 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
         $validatedData = $request->validate([
-        'name' => 'required|string|max:255',
-        'price' => 'required|numeric|min:0',
-        'category_id' => 'required|exists:categories,id',
-        'description' => 'nullable|string',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            // MODIFICATION: Added unique rule but ignoring the current product ID
+            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'variants' => 'nullable|array',
+            'variants.*.name' => 'required_with:variants|string|max:255',
+            'variants.*.price' => 'required_with:variants|numeric|min:0',
+            'variants.*.quantity' => 'required_with:variants|integer|min:0',
         ]);
 
-        // Xử lý slug
-        $validatedData['slug'] = Str::slug($validatedData['name']);
-
-        // Xử lý hình ảnh
         if ($request->hasFile('image')) {
-            // 1. Xóa ảnh cũ nếu có
             if ($product->image) {
                 Storage::disk('public')->delete($product->image);
             }
-            // 2. Tải ảnh mới lên và lấy đường dẫn
             $validatedData['image'] = $request->file('image')->store('products', 'public');
         }
+        
+        // Add slug to the data for updating
+        $validatedData['slug'] = Str::slug($validatedData['name']);
 
-        // Cập nhật sản phẩm
         $product->update($validatedData);
+
+        $product->variants()->delete();
+
+        if ($request->has('variants')) {
+            foreach ($request->variants as $variantData) {
+                if (!empty($variantData['name']) && isset($variantData['price']) && isset($variantData['quantity'])) {
+                    $product->variants()->create($variantData);
+                }
+            }
+        }
 
         return redirect()->route('products.index')->with('success', 'Cập nhật sản phẩm thành công!');
     }
@@ -125,14 +132,10 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        // Xóa hình ảnh của sản phẩm khỏi storage
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
         }
-
-        // Xóa sản phẩm khỏi database
         $product->delete();
-
         return redirect()->route('products.index')->with('success', 'Xóa sản phẩm thành công!');
     }
 }

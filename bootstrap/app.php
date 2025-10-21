@@ -13,9 +13,18 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         //
         $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminMiddleware::class
+            //'admin' => \App\Http\Middleware\AdminMiddleware::class
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+
+    ->withProviders([
+        \App\Providers\AuthServiceProvider::class,
+        \App\Providers\ViewServiceProvider::class,
+    ])
+    
+    ->create();

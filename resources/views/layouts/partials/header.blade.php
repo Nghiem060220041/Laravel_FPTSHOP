@@ -76,7 +76,7 @@
                     </li>
                 @endforeach
             @endisset
-            <li><a href="{{ url('/promotions') }}" class="hover:text-red-200">Khuyến mãi</a></li>
+            <li><a href="{{ url('/news') }}" class="hover:text-red-200">Khuyến mãi</a></li>
             <li><a href="{{ url('/news') }}" class="hover:text-red-200">Tin tức</a></li>
         </ul>
     </div>

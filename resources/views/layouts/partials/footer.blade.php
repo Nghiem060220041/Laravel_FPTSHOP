@@ -50,12 +50,12 @@
             </div>
             <h3 class="text-lg font-semibold mb-4">Phương thức thanh toán</h3>
             <div class="grid grid-cols-3 gap-2">
-                <img src="{{ asset('images/payments/visa.png') }}" alt="Visa" class="h-8">
-                <img src="{{ asset('images/payments/mastercard.png') }}" alt="Mastercard" class="h-8">
-                <img src="{{ asset('images/payments/jcb.png') }}" alt="JCB" class="h-8">
-                <img src="{{ asset('images/payments/momo.png') }}" alt="MoMo" class="h-8">
-                <img src="{{ asset('images/payments/zalopay.png') }}" alt="ZaloPay" class="h-8">
-                <img src="{{ asset('images/payments/vnpay.png') }}" alt="VNPay" class="h-8">
+                <img alt="VISA" loading="lazy" width="60" height="45" decoding="async" data-nimg="1" srcset="https://cdn2.fptshop.com.vn/svg/visa_icon_44fe6e15ed.svg 1x, https://cdn2.fptshop.com.vn/svg/visa_icon_44fe6e15ed.svg 2x" src="https://cdn2.fptshop.com.vn/svg/visa_icon_44fe6e15ed.svg" style="color: transparent;">
+                <img alt="MasterCard" loading="lazy" width="60" height="45" decoding="async" data-nimg="1" srcset="https://cdn2.fptshop.com.vn/svg/mastercard_icon_c75f94f6a5.svg 1x, https://cdn2.fptshop.com.vn/svg/mastercard_icon_c75f94f6a5.svg 2x" src="https://cdn2.fptshop.com.vn/svg/mastercard_icon_c75f94f6a5.svg" style="color: transparent;">
+                <img alt="JCB" loading="lazy" width="60" height="45" decoding="async" data-nimg="1" srcset="https://cdn2.fptshop.com.vn/svg/jcb_icon_214783937c.svg 1x, https://cdn2.fptshop.com.vn/svg/jcb_icon_214783937c.svg 2x" src="https://cdn2.fptshop.com.vn/svg/jcb_icon_214783937c.svg" style="color: transparent;">
+                <img alt="MoMo" loading="lazy" width="60" height="45" decoding="async" data-nimg="1" srcset="https://cdn2.fptshop.com.vn/svg/momo_icon_baef21b5f7.svg 1x, https://cdn2.fptshop.com.vn/svg/momo_icon_baef21b5f7.svg 2x" src="https://cdn2.fptshop.com.vn/svg/momo_icon_baef21b5f7.svg" style="color: transparent;">
+                <img alt="ZaloPay" loading="lazy" width="60" height="45" decoding="async" data-nimg="1" srcset="https://cdn2.fptshop.com.vn/svg/zalopay_icon_26d64ea93f.svg 1x, https://cdn2.fptshop.com.vn/svg/zalopay_icon_26d64ea93f.svg 2x" src="https://cdn2.fptshop.com.vn/svg/zalopay_icon_26d64ea93f.svg" style="color: transparent;">
+                <img alt="VNPAY" loading="lazy" width="60" height="45" decoding="async" data-nimg="1" srcset="https://cdn2.fptshop.com.vn/svg/vnpay_icon_f42045057d.svg 1x, https://cdn2.fptshop.com.vn/svg/vnpay_icon_f42045057d.svg 2x" src="https://cdn2.fptshop.com.vn/svg/vnpay_icon_f42045057d.svg" style="color: transparent;">
             </div>
         </div>
     </div>

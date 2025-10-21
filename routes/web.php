@@ -34,6 +34,11 @@ Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart
 Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
+Route::get('/about', [App\Http\Controllers\PageController::class, 'about'])->name('about');
+Route::get('/career', [App\Http\Controllers\PageController::class, 'career'])->name('career');
+Route::get('/news', [App\Http\Controllers\PageController::class, 'news'])->name('news');
+Route::get('/contact', [App\Http\Controllers\PageController::class, 'contact'])->name('contact');
+
 
 
 require __DIR__.'/auth.php';

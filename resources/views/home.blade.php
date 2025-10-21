@@ -5,15 +5,32 @@
 @section('content')
     <div class="container mx-auto px-4 py-8">
         <section class="mb-8">
-            <div class="relative">
-                <img src="{{ asset('images/banner/main-banner.jpg') }}" alt="Banner" class="w-full rounded-lg">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="ml-16 max-w-xl">
-                        <h2 class="text-4xl font-bold text-white mb-4">Khuyến mãi mùa hè</h2>
-                        <p class="text-white text-lg mb-6">Giảm giá đến 50% cho nhiều sản phẩm công nghệ</p>
-                        <a href="#" class="bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg">Khám phá ngay</a>
-                    </div>
+            <div class="swiper my-banner-slider">
+                <div class="swiper-wrapper">
+                    <a href="#" class="swiper-slide slide-item">
+                        <img src="https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/desk_header_bg_2c3c632836.png" 
+                             class="slide-bg" alt="Background S25">
+                        <img src="https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/desk_header_40b69f439a.png" 
+                             class="slide-content" alt="Banner S25 FE">
+                    </a>
+
+                    <a href="#" class="swiper-slide slide-item">
+                        <img src="https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/desk_header_bg_fd2212e503.png" 
+                             class="slide-bg" alt="Background Nóc Nhà">
+                        <img src="https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/desk_header_b2dad28ac4.png" 
+                             class="slide-content" alt="Banner Nóc Nhà">
+                    </a>
+                    
+                    <a href="#" class="swiper-slide slide-item">
+                        <img src="https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/desk_header_bg_3018b529ab.png" 
+                             class="slide-bg" alt="Background Điện máy">
+                        <img src="https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/desk_header_c79a90ba94.png" 
+                             class="slide-content" alt="Banner Điện máy">
+                    </a>
                 </div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+                <div class="swiper-pagination"></div>
             </div>
         </section>
 

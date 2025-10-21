@@ -15,7 +15,7 @@
                     <p class="text-gray-700 mb-4">Sau hơn 10 năm phát triển, FPT Shop đã trở thành nhà bán lẻ hàng đầu trong lĩnh vực công nghệ với hơn 750 cửa hàng trên toàn quốc, đáp ứng nhu cầu mua sắm của hàng triệu khách hàng mỗi năm.</p>
                 </div>
                 <div class="md:w-1/2">
-                    <img src="https://images.fpt.shop/unsafe/fit-in/1200x300/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2023/7/1/638238629808234212_fpt-shop-khai-truong.jpg" 
+                    <img src="https://mevivu.com/wp-content/uploads/2021/09/logo-fpt-shop.jpg" 
                          alt="FPT Shop" class="rounded-lg shadow-md w-full h-auto">
                 </div>
             </div>

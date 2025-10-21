@@ -13,10 +13,10 @@
         <div>
             <h3 class="text-lg font-semibold mb-4">Hỗ trợ khách hàng</h3>
             <ul class="space-y-2">
-                <li><a href="#" class="text-gray-300 hover:text-white">Tìm hiểu về mua trả góp</a></li>
-                <li><a href="#" class="text-gray-300 hover:text-white">Chính sách bảo hành</a></li>
-                <li><a href="#" class="text-gray-300 hover:text-white">Chính sách đổi trả</a></li>
-                <li><a href="#" class="text-gray-300 hover:text-white">Giao hàng & Thanh toán</a></li>
+                <li><a href="{{ route('support.installment') }}" class="text-gray-300 hover:text-white">Tìm hiểu về mua trả góp</a></li>
+                <li><a href="{{ route('support.warranty') }}" class="text-gray-300 hover:text-white">Chính sách bảo hành</a></li>
+                <li><a href="{{ route('support.return-policy') }}" class="text-gray-300 hover:text-white">Chính sách đổi trả</a></li>
+                <li><a href="{{ route('support.shipping-payment') }}" class="text-gray-300 hover:text-white">Giao hàng & Thanh toán</a></li>
             </ul>
         </div>
         

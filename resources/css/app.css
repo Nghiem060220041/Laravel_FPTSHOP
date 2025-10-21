@@ -21,7 +21,7 @@
     position: relative;
     display: block;
     line-height: 0;
-    aspect-ratio: 1240 / 320; /* Adjusted for better proportion like FPT Shop */
+    aspect-ratio: 1280 / 360; 
 }
 
 .slide-bg {
@@ -40,7 +40,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    max-width: 1240px;
+    max-width: 1340px;
     width: 100%;
     height: auto;
     z-index: 2;
@@ -83,6 +83,6 @@
 }
 
 .swiper-pagination-bullet-active {
-    background-color: #cd1818; /* FPT Shop red color */
+    background-color: #cd1818; 
     opacity: 1;
 }

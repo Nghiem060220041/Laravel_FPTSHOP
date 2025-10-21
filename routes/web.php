@@ -47,6 +47,12 @@ Route::get('/career', [App\Http\Controllers\PageController::class, 'career'])->n
 Route::get('/news', [App\Http\Controllers\PageController::class, 'news'])->name('news');
 Route::get('/contact', [App\Http\Controllers\PageController::class, 'contact'])->name('contact');
 
+// Routes cho trang hỗ trợ khách hàng
+Route::get('/installment', [App\Http\Controllers\SupportController::class, 'installment'])->name('support.installment');
+Route::get('/warranty', [App\Http\Controllers\SupportController::class, 'warranty'])->name('support.warranty');
+Route::get('/return-policy', [App\Http\Controllers\SupportController::class, 'returnPolicy'])->name('support.return-policy');
+Route::get('/shipping-payment', [App\Http\Controllers\SupportController::class, 'shippingPayment'])->name('support.shipping-payment');
+
 //admin
 Route::prefix('admin')
     ->middleware(['auth', 'role:Super Admin'])
@@ -65,5 +71,7 @@ Route::prefix('admin')
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('admin.orders.show');
     Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 });
+
+
 
 require __DIR__.'/auth.php';

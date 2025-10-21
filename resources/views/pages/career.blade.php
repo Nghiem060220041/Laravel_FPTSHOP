@@ -9,14 +9,8 @@
         
         <!-- Banner -->
         <div class="mb-8 relative overflow-hidden rounded-lg">
-            <img src="https://images.fpt.shop/unsafe/fit-in/1200x300/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/1/4/637769104775673825_career-banner.jpg" 
+            <img src="https://media.loveitopcdn.com/3807/logo-fpt-shop-compressed.jpg" 
                  alt="Tuyển dụng FPT Shop" class="w-full h-auto">
-            <div class="absolute inset-0 bg-gradient-to-r from-red-600/70 to-transparent flex items-center">
-                <div class="p-8 md:w-1/2">
-                    <h2 class="text-white text-3xl font-bold mb-4">Khởi đầu sự nghiệp cùng FPT Shop</h2>
-                    <p class="text-white text-lg">Môi trường năng động, chuyên nghiệp với nhiều cơ hội phát triển</p>
-                </div>
-            </div>
         </div>
         
         <!-- Vì sao chọn FPT Shop -->

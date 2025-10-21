@@ -5,45 +5,45 @@
 
 @section('content')
     @if ($errors->any())
-        <div style="background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 5px; margin-bottom: 20px;">
+        <x-admin.alert type="error" class="mb-5">
             <strong>Có lỗi xảy ra! Vui lòng kiểm tra lại.</strong>
-             <ul>
+            <ul class="mt-2 list-disc pl-5">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-        </div>
+        </x-admin.alert>
     @endif
 
-    <form action="{{ route('categories.update', $category->id) }}" method="POST">
-        @csrf
-        @method('PUT')
-        <div style="margin-bottom: 15px;">
-            <label for="name" style="display: block; margin-bottom: 5px; font-weight: bold;">Tên Danh Mục</label>
-            <input type="text" id="name" name="name" value="{{ old('name', $category->name) }}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-            @error('name')
-                <p style="color: red; font-size: 0.9em; margin-top: 5px;">{{ $message }}</p>
-            @enderror
-        </div>
+    <x-admin.card>
+        <form action="{{ route('categories.update', $category->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+            
+            <x-admin.input
+                label="Tên Danh Mục"
+                name="name"
+                id="name"
+                value="{{ old('name', $category->name) }}"
+                required
+                error="{{ $errors->first('name') }}"
+            />
 
-        {{-- THÊM MỚI: Ô CHỌN DANH MỤC CHA --}}
-        <div style="margin-bottom: 15px;">
-            <label for="parent_id" style="display: block; margin-bottom: 5px; font-weight: bold;">Danh Mục Cha (Tùy chọn)</label>
-            <select name="parent_id" id="parent_id" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                <option value="">-- Là danh mục gốc --</option>
-                @foreach ($categories as $cat)
-                    {{-- Logic để tự động chọn đúng danh mục cha --}}
-                    <option value="{{ $cat->id }}" {{ old('parent_id', $category->parent_id) == $cat->id ? 'selected' : '' }}>
-                        {{ $cat->name }}
-                    </option>
-                @endforeach
-            </select>
-            @error('parent_id')
-                <p style="color: red; font-size: 0.9em; margin-top: 5px;">{{ $message }}</p>
-            @enderror
-        </div>
-        {{-- KẾT THÚC THÊM MỚI --}}
+            <x-admin.select
+                label="Danh Mục Cha (Tùy chọn)"
+                name="parent_id"
+                id="parent_id"
+                :options="$categories->pluck('name', 'id')->toArray()"
+                :selected="old('parent_id', $category->parent_id)"
+                placeholder="-- Là danh mục gốc --"
+                error="{{ $errors->first('parent_id') }}"
+            />
 
-        <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Cập Nhật Danh Mục</button>
-    </form>
+            <div class="mt-6">
+                <x-admin.button type="submit" color="success">
+                    Cập Nhật Danh Mục
+                </x-admin.button>
+            </div>
+        </form>
+    </x-admin.card>
 @endsection

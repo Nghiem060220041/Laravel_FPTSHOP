@@ -132,10 +132,14 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+        try {
+            $product->delete();
+            return redirect()->route('products.index')
+                ->with('success', 'Sản phẩm đã được xóa thành công.')
+                ->with('deleted', true);  // Thêm flag này để hiển thị modal
+        } catch (\Exception $e) {
+            return redirect()->route('products.index')
+                ->with('error', 'Không thể xóa sản phẩm. ' . $e->getMessage());
         }
-        $product->delete();
-        return redirect()->route('products.index')->with('success', 'Xóa sản phẩm thành công!');
     }
 }

@@ -5,58 +5,68 @@
 
 @section('content')
     @if (session('success'))
-        <div style="background-color: #d4edda; color: #155724; padding: 1rem; border-radius: 5px; margin-bottom: 20px;">{{ session('success') }}</div>
+        <x-admin.alert type="success" class="mb-5">
+            {{ session('success') }}
+        </x-admin.alert>
     @endif
 
-    <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-        @csrf
-        @method('PATCH')
-        <label for="status" style="font-weight: bold;">Cập nhật trạng thái:</label>
-        <select name="status" id="status" style="padding: 5px;">
-            <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Đang chờ xử lý</option>
-            <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Đang xử lý</option>
-            <option value="shipped" {{ $order->status == 'shipped' ? 'selected' : '' }}>Đã giao hàng</option>
-            <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
-            <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Đã hủy</option>
-        </select>
-        <button type="submit" style="padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px;">Cập nhật</button>
-    </form>
+    <x-admin.card class="mb-6">
+        <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST" class="flex items-center gap-4">
+            @csrf
+            @method('PATCH')
+            <label for="status" class="font-bold">Cập nhật trạng thái:</label>
+            <x-admin.select
+                name="status"
+                id="status"
+                :options="[
+                    'pending' => 'Đang chờ xử lý',
+                    'processing' => 'Đang xử lý',
+                    'shipped' => 'Đã giao hàng',
+                    'completed' => 'Hoàn thành',
+                    'cancelled' => 'Đã hủy'
+                ]"
+                :selected="$order->status"
+                class="w-auto"
+            />
+            <x-admin.button type="submit" color="primary" size="sm">
+                Cập nhật
+            </x-admin.button>
+        </form>
+    </x-admin.card>
 
-    <div style="display: flex; gap: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-        <div style="flex: 1;">
-            <h4>Thông Tin Khách Hàng</h4>
-            <p><strong>Tên:</strong> {{ $order->user->name }}</p>
-            <p><strong>Email:</strong> {{ $order->user->email }}</p>
-            <p><strong>Địa chỉ giao hàng:</strong> {{ $order->shipping_address }}</p>
-        </div>
-        <div style="flex: 1;">
-            <h4>Thông Tin Đơn Hàng</h4>
-            <p><strong>Mã đơn:</strong> #{{ $order->id }}</p>
-            <p><strong>Ngày đặt:</strong> {{ $order->created_at->format('d/m/Y H:i') }}</p>
-            <p><strong>Trạng thái:</strong> <span style="font-weight: bold;">{{ ucfirst($order->status) }}</span></p>
-            <p><strong>Tổng tiền:</strong> <span style="color: red; font-weight: bold;">{{ number_format($order->total_amount) }} VNĐ</span></p>
-        </div>
+    <div class="flex flex-col md:flex-row gap-6 border-t border-gray-200 pt-5">
+        <x-admin.card title="Thông Tin Khách Hàng" class="flex-1">
+            <p class="mb-2"><span class="font-bold">Tên:</span> {{ $order->user->name }}</p>
+            <p class="mb-2"><span class="font-bold">Email:</span> {{ $order->user->email }}</p>
+            <p class="mb-2"><span class="font-bold">Địa chỉ giao hàng:</span> {{ $order->shipping_address }}</p>
+        </x-admin.card>
+        
+        <x-admin.card title="Thông Tin Đơn Hàng" class="flex-1">
+            <p class="mb-2"><span class="font-bold">Mã đơn:</span> #{{ $order->id }}</p>
+            <p class="mb-2"><span class="font-bold">Ngày đặt:</span> {{ $order->created_at->format('d/m/Y H:i') }}</p>
+            <p class="mb-2">
+                <span class="font-bold">Trạng thái:</span> 
+                <x-admin.badge color="{{ $order->status === 'completed' ? 'green' : ($order->status === 'cancelled' ? 'red' : 'blue') }}">
+                    {{ ucfirst($order->status) }}
+                </x-admin.badge>
+            </p>
+            <p class="mb-2">
+                <span class="font-bold">Tổng tiền:</span> 
+                <span class="text-red-600 font-bold">{{ number_format($order->total_amount) }} VNĐ</span>
+            </p>
+        </x-admin.card>
     </div>
 
-    <h4 style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">Các Sản Phẩm Đã Đặt</h4>
-    <table>
-        <thead>
-            <tr>
-                <th>Sản phẩm</th>
-                <th>Số lượng</th>
-                <th>Đơn giá</th>
-                <th>Thành tiền</th>
-            </tr>
-        </thead>
-        <tbody>
+    <x-admin.card title="Các Sản Phẩm Đã Đặt" class="mt-6">
+        <x-admin.table :headers="['Sản phẩm', 'Số lượng', 'Đơn giá', 'Thành tiền']">
             @foreach ($order->products as $product)
                 <tr>
-                    <td>{{ $product->name }}</td>
-                    <td>{{ $product->pivot->quantity }}</td>
-                    <td>{{ number_format($product->pivot->price) }} VNĐ</td>
-                    <td>{{ number_format($product->pivot->quantity * $product->pivot->price) }} VNĐ</td>
+                    <td class="px-6 py-4">{{ $product->name }}</td>
+                    <td class="px-6 py-4">{{ $product->pivot->quantity }}</td>
+                    <td class="px-6 py-4">{{ number_format($product->pivot->price) }} VNĐ</td>
+                    <td class="px-6 py-4">{{ number_format($product->pivot->quantity * $product->pivot->price) }} VNĐ</td>
                 </tr>
             @endforeach
-        </tbody>
-    </table>
+        </x-admin.table>
+    </x-admin.card>
 @endsection

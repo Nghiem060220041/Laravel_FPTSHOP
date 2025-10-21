@@ -4,40 +4,43 @@
 @section('header_title', 'Danh Sách Danh Mục')
 
 @section('content')
-    <a href="{{ route('categories.create') }}" style="display: inline-block; padding: 10px 15px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px;">Thêm Danh Mục Mới</a>
+    <x-admin.button href="{{ route('categories.create') }}" color="primary" class="mb-5">
+        Thêm Danh Mục Mới
+    </x-admin.button>
 
     @if (session('success'))
-        <div style="background-color: #d4edda; color: #155724; padding: 1rem; border-radius: 5px; margin-bottom: 20px;">{{ session('success') }}</div>
+        <x-admin.alert type="success" class="mb-5">
+            {{ session('success') }}
+        </x-admin.alert>
     @endif
 
-    <table>
-        <thead>
+    <x-admin.table :headers="['ID', 'Tên Danh Mục', 'Slug', 'Hành Động']">
+        @forelse ($categories as $category)
             <tr>
-                <th>ID</th>
-                <th>Tên Danh Mục</th>
-                <th>Slug</th>
-                <th>Hành Động</th>
+                <td class="px-6 py-4">{{ $category->id }}</td>
+                <td class="px-6 py-4">{{ $category->name }}</td>
+                <td class="px-6 py-4">{{ $category->slug }}</td>
+                <td class="px-6 py-4 flex items-center gap-2">
+                    <x-admin.button href="{{ route('categories.edit', $category->id) }}" color="info" size="sm">
+                        Sửa
+                    </x-admin.button>
+                    <form action="{{ route('categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
+                        @csrf
+                        @method('DELETE')
+                        <x-admin.button type="submit" color="danger" size="sm">
+                            Xóa
+                        </x-admin.button>
+                    </form>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @forelse ($categories as $category)
-                <tr>
-                    <td>{{ $category->id }}</td>
-                    <td>{{ $category->name }}</td>
-                    <td>{{ $category->slug }}</td>
-                    <td style="display: flex; align-items: center; gap: 10px;">
-                        <a href="{{ route('categories.edit', $category->id) }}">Sửa</a>
-                        <form action="{{ route('categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" style="background:none; border:none; color:red; cursor:pointer; padding:0;">Xóa</button>
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr><td colspan="4" style="text-align: center;">Chưa có danh mục nào.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-    <div style="margin-top: 20px;">{{ $categories->links() }}</div>
+        @empty
+            <tr>
+                <td colspan="4" class="px-6 py-4 text-center">Chưa có danh mục nào.</td>
+            </tr>
+        @endforelse
+    </x-admin.table>
+
+    <div class="mt-5">
+        {{ $categories->links() }}
+    </div>
 @endsection

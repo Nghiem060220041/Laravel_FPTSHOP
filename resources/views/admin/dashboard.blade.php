@@ -5,39 +5,41 @@
 
 @section('content')
     {{-- PHẦN THỐNG KÊ --}}
-    <div class="stats-container" style="display: flex; flex-wrap: wrap; gap: 20px;">
+    <div class="flex flex-wrap gap-5 mb-8">
         
         {{-- Thẻ Tổng Sản Phẩm --}}
-        <div class="stat-card" style="flex: 1; min-width: 200px; text-align: center; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-            <h3 style="margin-top: 0; font-size: 1.2rem; color: #495057;">Tổng Sản Phẩm</h3>
-            <p style="font-size: 2.5rem; font-weight: bold; color: #007bff; margin-bottom: 0;">{{ $totalProducts }}</p>
-        </div>
+        <x-admin.card class="flex-1 min-w-[200px] text-center">
+            <h3 class="mt-0 text-xl text-gray-700">Tổng Sản Phẩm</h3>
+            <p class="text-4xl font-bold text-blue-600 mb-0">{{ $totalProducts }}</p>
+        </x-admin.card>
 
         {{-- Thẻ Tổng Danh Mục --}}
-        <div class="stat-card" style="flex: 1; min-width: 200px; text-align: center; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-            <h3 style="margin-top: 0; font-size: 1.2rem; color: #495057;">Tổng Danh Mục</h3>
-            <p style="font-size: 2.5rem; font-weight: bold; color: #28a745; margin-bottom: 0;">{{ $totalCategories }}</p>
-        </div>
+        <x-admin.card class="flex-1 min-w-[200px] text-center">
+            <h3 class="mt-0 text-xl text-gray-700">Tổng Danh Mục</h3>
+            <p class="text-4xl font-bold text-green-600 mb-0">{{ $totalCategories }}</p>
+        </x-admin.card>
 
         {{-- Thẻ Khách Hàng --}}
-        <div class="stat-card" style="flex: 1; min-width: 200px; text-align: center; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-            <h3 style="margin-top: 0; font-size: 1.2rem; color: #495057;">Khách Hàng</h3>
-            <p style="font-size: 2.5rem; font-weight: bold; color: #ffc107; margin-bottom: 0;">{{ $totalUsers }}</p>
-        </div>
+        <x-admin.card class="flex-1 min-w-[200px] text-center">
+            <h3 class="mt-0 text-xl text-gray-700">Khách Hàng</h3>
+            <p class="text-4xl font-bold text-yellow-500 mb-0">{{ $totalUsers }}</p>
+        </x-admin.card>
 
         {{-- Thẻ Tổng Doanh Thu --}}
-        <div class="stat-card" style="flex: 1; min-width: 200px; text-align: center; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-            <h3 style="margin-top: 0; font-size: 1.2rem; color: #495057;">Tổng Doanh Thu</h3>
-            <p style="font-size: 2.5rem; font-weight: bold; color: #e74c3c; margin-bottom: 0;">{{ number_format($totalRevenue) }} VNĐ</p>
-        </div>
+        <x-admin.card class="flex-1 min-w-[200px] text-center">
+            <h3 class="mt-0 text-xl text-gray-700">Tổng Doanh Thu</h3>
+            <p class="text-4xl font-bold text-red-600 mb-0">{{ number_format($totalRevenue) }} VNĐ</p>
+        </x-admin.card>
         
     </div>
 
     {{-- BIỂU ĐỒ --}}
-    <div class="chart-container" style="margin-top: 40px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-        <h3 style="margin-top: 0;">Doanh thu 7 ngày qua</h3>
-        <canvas id="revenueChart" style="max-height: 400px;"></canvas>
-    </div>
+    <x-admin.card class="mt-10">
+        <h3 class="mt-0 text-xl font-semibold mb-4">Doanh thu 7 ngày qua</h3>
+        <div class="max-h-[400px]">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </x-admin.card>
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {

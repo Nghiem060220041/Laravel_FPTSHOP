@@ -15,12 +15,16 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->text('description')->nullable();
-            $table->longText('content')->nullable();
-            $table->decimal('price', 15, 2);
-            $table->decimal('sale_price', 15, 2)->nullable();
+            $table->decimal('price', 12, 2);
+            $table->decimal('original_price', 12, 2)->nullable();
             $table->integer('quantity')->default(0);
+            $table->boolean('featured')->default(false);
+            $table->boolean('status')->default(true);
+            $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('brand_id')->nullable();
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->foreign('brand_id')->references('id')->on('brands')->onDelete('set null');
             $table->timestamps();
         });
     }

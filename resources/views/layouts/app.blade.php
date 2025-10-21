@@ -11,29 +11,6 @@
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <style>
-        /* Ẩn dropdown menu ban đầu */
-        .dropdown-menu {
-            display: none;
-        }
-        
-        /* Hiển thị khi hover hoặc có class show */
-        .dropdown:hover .dropdown-menu,
-        .dropdown-menu.show {
-            display: block;
-        }
-        
-        /* Thêm khoảng trống để di chuột xuống menu mà không bị mất */
-        .dropdown-menu::before {
-            content: "";
-            display: block;
-            position: absolute;
-            top: -10px;
-            left: 0;
-            right: 0;
-            height: 10px;
-        }
-    </style>
 </head>
 <body class="bg-gray-100">
 

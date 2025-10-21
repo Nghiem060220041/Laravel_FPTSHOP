@@ -42,12 +42,25 @@ Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart
 Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
+
+Route::get('/about', [App\Http\Controllers\PageController::class, 'about'])->name('about');
+Route::get('/career', [App\Http\Controllers\PageController::class, 'career'])->name('career');
+Route::get('/news', [App\Http\Controllers\PageController::class, 'news'])->name('news');
+Route::get('/contact', [App\Http\Controllers\PageController::class, 'contact'])->name('contact');
+
+// Routes cho trang hỗ trợ khách hàng
+Route::get('/installment', [App\Http\Controllers\SupportController::class, 'installment'])->name('support.installment');
+Route::get('/warranty', [App\Http\Controllers\SupportController::class, 'warranty'])->name('support.warranty');
+Route::get('/return-policy', [App\Http\Controllers\SupportController::class, 'returnPolicy'])->name('support.return-policy');
+Route::get('/shipping-payment', [App\Http\Controllers\SupportController::class, 'shippingPayment'])->name('support.shipping-payment');
+
 //admin
 Route::prefix('admin')
     ->middleware(['auth', 'role:Super Admin'])
     ->group(function () {
     
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
+
 
     Route::resource('products', ProductController::class)->except(['show']);
     Route::resource('categories', CategoryController::class)->except(['show']);
@@ -61,5 +74,7 @@ Route::prefix('admin')
     Route::get('/stats/revenue-7-days', [DashboardController::class, 'revenueStats'])->name('admin.stats.revenue');
     Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 });
+
+
 
 require __DIR__.'/auth.php';

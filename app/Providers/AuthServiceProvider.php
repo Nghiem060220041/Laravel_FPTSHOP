@@ -22,5 +22,8 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Định nghĩa các Gates và Policies tại đây
+        Gate::before(function ($user, $ability) {
+            return $user->hasRole('Super Admin') ? true : null;
+        });
     }
 }

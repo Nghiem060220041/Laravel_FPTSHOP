@@ -21,7 +21,8 @@ class Product extends Model
         'price',
         'category_id',
         'quantity',
-        'status'
+        'status',
+        'image'
     ];
 
     public function category()
@@ -74,5 +75,10 @@ class Product extends Model
         }
         
         return $this->reviews->avg('rating');
+    }
+
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
     }
 }

@@ -13,6 +13,7 @@ class Coupon extends Model
         'code',
         'type',
         'value',
+        'starts_at',
         'expires_at',
         'usage_limit',
         'times_used',
@@ -20,6 +21,7 @@ class Coupon extends Model
 
     // định dạng ngày hết hạn
     protected $casts = [
+        'starts_at' => 'datetime',
         'expires_at' => 'datetime',
     ];
 }

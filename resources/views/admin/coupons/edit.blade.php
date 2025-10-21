@@ -28,6 +28,10 @@
             <input type="number" name="value" value="{{ old('value', $coupon->value) }}" required style="width: 100%; padding: 8px;">
         </div>
         <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold;">Ngày Bắt Đầu (Bỏ trống nếu áp dụng ngay)</label>
+            <input type="date" name="starts_at" value="{{ old('starts_at', $coupon->starts_at ? $coupon->starts_at->format('Y-m-d') : '') }}" style="width: 100%; padding: 8px;">
+        </div>
+        <div style="margin-bottom: 15px;">
             <label style="font-weight: bold;">Ngày Hết Hạn (Bỏ trống nếu không hết hạn)</label>
             <input type="date" name="expires_at" value="{{ old('expires_at', $coupon->expires_at ? $coupon->expires_at->format('Y-m-d') : '') }}" style="width: 100%; padding: 8px;">
         </div>

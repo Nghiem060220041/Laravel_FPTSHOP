@@ -28,6 +28,7 @@ class CouponController extends Controller
             'code' => 'required|string|unique:coupons,code|max:255',
             'type' => 'required|in:fixed,percent',
             'value' => 'required|numeric|min:0',
+            'starts_at' => 'nullable|date',
             'expires_at' => 'nullable|date|after:today',
             'usage_limit' => 'nullable|integer|min:1',
         ]);
@@ -50,6 +51,7 @@ class CouponController extends Controller
             'code' => 'required|string|max:255|unique:coupons,code,' . $coupon->id,
             'type' => 'required|in:fixed,percent',
             'value' => 'required|numeric|min:0',
+            'starts_at' => 'nullable|date',
             'expires_at' => 'nullable|date',
             'usage_limit' => 'nullable|integer|min:1',
         ]);

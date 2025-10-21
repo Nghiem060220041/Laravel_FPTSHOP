@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\CouponController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -50,12 +51,14 @@ Route::prefix('admin')
 
     Route::resource('products', ProductController::class)->except(['show']);
     Route::resource('categories', CategoryController::class)->except(['show']);
+    Route::resource('coupons', CouponController::class)->except(['show']);
     
     Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
     
     Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('admin.orders.show');
+    Route::get('/stats/revenue-7-days', [DashboardController::class, 'revenueStats'])->name('admin.stats.revenue');
     Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 });
 

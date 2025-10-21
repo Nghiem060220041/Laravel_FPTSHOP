@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin Dashboard') - FPTShop</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f7fa; color: #333; }
         .admin-container { display: flex; min-height: 100vh; }
@@ -50,6 +51,9 @@
                 <li><a href="{{ route('admin.orders.index') }}" class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">Quản lý Đơn hàng</a></li>
             @endcan
 
+            @can('manage coupons')
+                <li><a href="{{ route('coupons.index') }}" class="{{ request()->routeIs('coupons.*') ? 'active' : '' }}">Quản lý Mã Giảm Giá</a></li>
+            @endcan
         </ul>
     </aside>
 

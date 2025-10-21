@@ -14,7 +14,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::latest()->paginate(10);
+        $categories = Category::orderBy('id', 'asc')->paginate(10);
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -23,7 +23,8 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view('admin.categories.create');
+        $categories = Category::all();
+        return view('admin.categories.create', compact('categories'));
     }
 
     /**
@@ -33,11 +34,13 @@ class CategoryController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255|unique:categories',
+            'parent_id' => 'nullable|exists:categories,id'
         ]);
 
         Category::create([
             'name' => $validatedData['name'],
             'slug' => Str::slug($validatedData['name']),
+            'parent_id' => $validatedData['parent_id'],
         ]);
 
         return redirect()->route('categories.index')->with('success', 'Thêm danh mục thành công!');
@@ -58,13 +61,15 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $validatedData = $request->validate([
-            // Tên phải là duy nhất, nhưng bỏ qua chính danh mục đang sửa
+            // Tên phải là duy nhất, nhưng bỏ qua danh mục đang sửa
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'parent_id' => 'nullable|exists:categories,id',
         ]);
 
         $category->update([
             'name' => $validatedData['name'],
             'slug' => Str::slug($validatedData['name']),
+            'parent_id' => $validatedData['parent_id'],
         ]);
 
         return redirect()->route('categories.index')->with('success', 'Cập nhật danh mục thành công!');

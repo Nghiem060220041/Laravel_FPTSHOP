@@ -30,21 +30,21 @@ class ProductController extends Controller
         return view('admin.products.create', compact('categories'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            // MODIFICATION: Added 'unique:products,name' to ensure the product name is unique
             'name' => 'required|string|max:255|unique:products,name',
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'variants' => 'nullable|array',
-            'variants.*.name' => 'required_with:variants|string|max:255',
-            'variants.*.price' => 'required_with:variants|numeric|min:0',
-            'variants.*.quantity' => 'required_with:variants|integer|min:0',
+            // Validation cho biến thể và thuộc tính
+            'variants' => 'required|array|min:1', // Ít nhất phải có 1 biến thể
+            'variants.*.name' => 'nullable|string|max:255', // Tên gợi nhớ không bắt buộc
+            'variants.*.attributes' => 'required|array|min:1', // Mỗi biến thể phải có ít nhất 1 thuộc tính
+            'variants.*.attributes.*.key' => 'required|string|max:255',
+            'variants.*.attributes.*.value' => 'required|string|max:255',
+            'variants.*.price' => 'required|numeric|min:0',
+            'variants.*.quantity' => 'required|integer|min:0',
         ]);
 
         $imagePath = null;
@@ -52,21 +52,36 @@ class ProductController extends Controller
             $imagePath = $request->file('image')->store('products', 'public');
         }
 
-        // Create the main product
+        // Tạo sản phẩm chính (không còn lưu giá, số lượng)
         $product = Product::create([
             'name' => $validatedData['name'],
-            'price' => $request->price ?? 0,
             'description' => $validatedData['description'],
             'image' => $imagePath,
             'slug' => Str::slug($validatedData['name']),
             'category_id' => $validatedData['category_id']
         ]);
 
-        // Create variants
+        // Tạo các biến thể và xử lý attributes
         if ($request->has('variants')) {
             foreach ($request->variants as $variantData) {
-                if (!empty($variantData['name']) && isset($variantData['price']) && isset($variantData['quantity'])) {
-                    $product->variants()->create($variantData);
+                // Chuyển đổi mảng attributes key-value thành dạng JSON mong muốn
+                $attributesArray = [];
+                if (isset($variantData['attributes'])) {
+                    foreach ($variantData['attributes'] as $attribute) {
+                        if (!empty($attribute['key']) && !empty($attribute['value'])) {
+                            $attributesArray[$attribute['key']] = $attribute['value'];
+                        }
+                    }
+                }
+                
+                // Chỉ lưu biến thể nếu có đủ thông tin cơ bản và thuộc tính
+                if (!empty($attributesArray) && isset($variantData['price']) && isset($variantData['quantity'])) {
+                     $product->variants()->create([
+                         'name' => $variantData['name'] ?? null, // Tên gợi nhớ có thể null
+                         'attributes' => $attributesArray, // Lưu dưới dạng JSON
+                         'price' => $variantData['price'],
+                         'quantity' => $variantData['quantity'],
+                     ]);
                 }
             }
         }
@@ -75,67 +90,63 @@ class ProductController extends Controller
     }
 
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
-    {
-        $categories = Category::all();
-        $product->load('variants');
-        return view('admin.products.edit', compact('product', 'categories'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Product $product)
     {
-        $validatedData = $request->validate([
-            // MODIFICATION: Added unique rule but ignoring the current product ID
+         $validatedData = $request->validate([
             'name' => 'required|string|max:255|unique:products,name,' . $product->id,
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'variants' => 'nullable|array',
-            'variants.*.name' => 'required_with:variants|string|max:255',
-            'variants.*.price' => 'required_with:variants|numeric|min:0',
-            'variants.*.quantity' => 'required_with:variants|integer|min:0',
+            'variants' => 'required|array|min:1',
+            'variants.*.name' => 'nullable|string|max:255',
+            'variants.*.attributes' => 'required|array|min:1',
+            'variants.*.attributes.*.key' => 'required|string|max:255',
+            'variants.*.attributes.*.value' => 'required|string|max:255',
+            'variants.*.price' => 'required|numeric|min:0',
+            'variants.*.quantity' => 'required|integer|min:0',
         ]);
 
+        $updateData = [
+            'name' => $validatedData['name'],
+            'description' => $validatedData['description'],
+            'slug' => Str::slug($validatedData['name']),
+            'category_id' => $validatedData['category_id']
+        ];
+
+        // Xử lý upload ảnh mới
         if ($request->hasFile('image')) {
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
-            }
-            $validatedData['image'] = $request->file('image')->store('products', 'public');
+            if ($product->image) { Storage::disk('public')->delete($product->image); }
+            $updateData['image'] = $request->file('image')->store('products', 'public');
         }
-        
-        // Add slug to the data for updating
-        $validatedData['slug'] = Str::slug($validatedData['name']);
 
-        $product->update($validatedData);
+        // Cập nhật sản phẩm chính
+        $product->update($updateData);
 
+        // Xóa tất cả biến thể cũ
         $product->variants()->delete();
 
+        // Thêm lại các biến thể mới từ form
         if ($request->has('variants')) {
-            foreach ($request->variants as $variantData) {
-                if (!empty($variantData['name']) && isset($variantData['price']) && isset($variantData['quantity'])) {
-                    $product->variants()->create($variantData);
+             foreach ($request->variants as $variantData) {
+                $attributesArray = [];
+                if (isset($variantData['attributes'])) {
+                    foreach ($variantData['attributes'] as $attribute) {
+                         if (!empty($attribute['key']) && !empty($attribute['value'])) {
+                            $attributesArray[$attribute['key']] = $attribute['value'];
+                        }
+                    }
+                }
+                 if (!empty($attributesArray) && isset($variantData['price']) && isset($variantData['quantity'])) {
+                     $product->variants()->create([
+                         'name' => $variantData['name'] ?? null,
+                         'attributes' => $attributesArray,
+                         'price' => $variantData['price'],
+                         'quantity' => $variantData['quantity'],
+                     ]);
                 }
             }
         }
 
         return redirect()->route('products.index')->with('success', 'Cập nhật sản phẩm thành công!');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
-    {
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
-        }
-        $product->delete();
-        return redirect()->route('products.index')->with('success', 'Xóa sản phẩm thành công!');
     }
 }

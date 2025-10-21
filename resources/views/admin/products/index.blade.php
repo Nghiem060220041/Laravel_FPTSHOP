@@ -5,7 +5,7 @@
 
 @section('content')
     <a href="{{ route('products.create') }}" style="display: inline-block; padding: 10px 15px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px;">Thêm Sản Phẩm Mới</a>
-    
+
     @if (session('success'))
         <div style="background-color: #d4edda; color: #155724; padding: 1rem; border-radius: 5px; margin-bottom: 20px;">
             {{ session('success') }}
@@ -18,6 +18,7 @@
                 <th>ID</th>
                 <th>Hình Ảnh</th>
                 <th>Tên Sản Phẩm</th>
+                <th>Mô Tả</th> {{-- <- THÊM LẠI TIÊU ĐỀ CỘT --}}
                 <th>Giá Biến Thể (VNĐ)</th>
                 <th>Tổng Tồn Kho</th>
                 <th>Danh Mục</th>
@@ -36,8 +37,13 @@
                         @endif
                     </td>
                     <td>{{ $product->name }}</td>
+                    
+                    {{-- THÊM LẠI CỘT DỮ LIỆU MÔ TẢ --}}
                     <td>
-                        {{-- Hiển thị khoảng giá nếu có biến thể --}}
+                        {{ \Illuminate\Support\Str::limit($product->description, 50, '...') }}
+                    </td>
+                    
+                    <td>
                         @if($product->variants->isNotEmpty())
                             {{ number_format($product->variants->min('price')) }}
                             -
@@ -47,7 +53,6 @@
                         @endif
                     </td>
                     <td>
-                        {{-- Hiển thị tổng số lượng tồn kho --}}
                         @if($product->variants->isNotEmpty())
                             {{ $product->variants->sum('quantity') }}
                         @else
@@ -66,7 +71,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" style="text-align: center;">Chưa có sản phẩm nào.</td>
+                    <td colspan="8" style="text-align: center;">Chưa có sản phẩm nào.</td>
                 </tr>
             @endforelse
         </tbody>

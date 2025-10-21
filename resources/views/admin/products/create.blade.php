@@ -7,25 +7,29 @@
     @if ($errors->any())
         <div style="background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 5px; margin-bottom: 20px;">
             <strong>Có lỗi xảy ra! Vui lòng kiểm tra lại.</strong>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+            <ul> @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach </ul>
         </div>
     @endif
 
-    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" x-data="{ variants: [{ name: '', price: '', quantity: '' }] }">
+    {{-- Khởi tạo Alpine.js: variants là một mảng chứa các đối tượng biến thể --}}
+    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" 
+          x-data="{ 
+              variants: [{ name: '', attributes: [{key: '', value: ''}], price: '', quantity: '' }],
+              addVariant() { this.variants.push({ name: '', attributes: [{key: '', value: ''}], price: '', quantity: '' }); },
+              removeVariant(index) { this.variants.splice(index, 1); },
+              addAttribute(variantIndex) { this.variants[variantIndex].attributes.push({key: '', value: ''}); },
+              removeAttribute(variantIndex, attrIndex) { this.variants[variantIndex].attributes.splice(attrIndex, 1); }
+          }">
         @csrf
         {{-- THÔNG TIN SẢN PHẨM CHÍNH --}}
         <h4>Thông Tin Cơ Bản</h4>
         <div style="margin-bottom: 15px;">
             <label for="name" style="font-weight: bold;">Tên Sản Phẩm</label>
-            <input type="text" id="name" name="name" value="{{ old('name') }}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <input type="text" id="name" name="name" value="{{ old('name') }}" required style="width: 100%; padding: 8px;">
         </div>
         <div style="margin-bottom: 15px;">
             <label for="category_id" style="font-weight: bold;">Danh Mục</label>
-            <select name="category_id" id="category_id" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <select name="category_id" id="category_id" required style="width: 100%; padding: 8px;">
                 <option value="">-- Chọn Danh Mục --</option>
                 @foreach ($categories as $category)
                     <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
@@ -45,16 +49,48 @@
         {{-- KHU VỰC QUẢN LÝ BIẾN THỂ --}}
         <h4>Các Biến Thể Sản Phẩm</h4>
         <div id="variant-list">
+            {{-- Vòng lặp qua mảng variants trong Alpine.js --}}
             <template x-for="(variant, index) in variants" :key="index">
-                <div class="variant-row" style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px; padding: 10px; border: 1px solid #eee; border-radius: 4px;">
-                    <input type="text" :name="`variants[${index}][name]`" x-model="variant.name" placeholder="Tên biến thể (VD: Đỏ, 256GB)" style="flex: 3; padding: 8px;" required>
-                    <input type="number" :name="`variants[${index}][price]`" x-model="variant.price" placeholder="Giá" style="flex: 2; padding: 8px;" required>
-                    <input type="number" :name="`variants[${index}][quantity]`" x-model="variant.quantity" placeholder="Số lượng" style="flex: 1; padding: 8px;" required>
-                    <button type="button" @click="variants.splice(index, 1)" style="color: red; background: none; border: none; cursor: pointer; font-weight: bold;">Xóa</button>
+                <div class="variant-row" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h5 style="margin: 0;" x-text="`Biến thể #${index + 1}`"></h5>
+                        <button type="button" @click="removeVariant(index)" style="color: red; background: none; border: none; cursor: pointer; font-weight: bold;">Xóa Biến Thể Này</button>
+                    </div>
+
+                    {{-- Tên gợi nhớ (không bắt buộc, có thể bỏ) --}}
+                    <div style="margin-bottom: 10px;">
+                        <label :for="`variant_name_${index}`">Tên Gợi Nhớ (Ví dụ: Đỏ 128GB)</label>
+                        <input type="text" :id="`variant_name_${index}`" :name="`variants[${index}][name]`" x-model="variant.name" style="width: 100%; padding: 8px;">
+                    </div>
+                    
+                    {{-- Quản lý Thuộc tính --}}
+                    <div style="margin-bottom: 10px; padding-left: 15px; border-left: 3px solid #eee;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Thuộc Tính:</label>
+                        <template x-for="(attribute, attrIndex) in variant.attributes" :key="attrIndex">
+                           <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                               <input type="text"      :name="`variants[${index}][attributes][${attrIndex}][key]`"   x-model="attribute.key"   placeholder="Tên thuộc tính (VD: Màu)" style="flex: 1; padding: 6px;">
+                               <input type="text"      :name="`variants[${index}][attributes][${attrIndex}][value]`" x-model="attribute.value" placeholder="Giá trị (VD: Xanh)" style="flex: 2; padding: 6px;">
+                               <button type="button" @click="removeAttribute(index, attrIndex)" style="color: #aaa;">x</button>
+                           </div>
+                        </template>
+                        <button type="button" @click="addAttribute(index)" style="font-size: 0.9em; padding: 3px 6px;">+ Thêm thuộc tính</button>
+                    </div>
+                    
+                    {{-- Giá và Số lượng --}}
+                    <div style="display: flex; gap: 15px; margin-top: 10px;">
+                        <div style="flex: 1;">
+                            <label :for="`variant_price_${index}`" style="font-weight: bold;">Giá (VNĐ)</label>
+                            <input type="number" :id="`variant_price_${index}`" :name="`variants[${index}][price]`" x-model="variant.price" required style="width: 100%; padding: 8px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label :for="`variant_quantity_${index}`" style="font-weight: bold;">Số Lượng Tồn Kho</label>
+                            <input type="number" :id="`variant_quantity_${index}`" :name="`variants[${index}][quantity]`" x-model="variant.quantity" required style="width: 100%; padding: 8px;">
+                        </div>
+                    </div>
                 </div>
             </template>
         </div>
-        <button type="button" @click="variants.push({ name: '', price: '', quantity: '' })" style="margin-top: 10px; padding: 8px 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">+ Thêm Biến Thể</button>
+        <button type="button" @click="addVariant()" style="margin-top: 10px; padding: 8px 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">+ Thêm Biến Thể Mới</button>
         <hr style="margin: 30px 0;">
 
         <button type="submit" style="padding: 10px 20px; background-color: #0d6efd; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Lưu Sản Phẩm</button>

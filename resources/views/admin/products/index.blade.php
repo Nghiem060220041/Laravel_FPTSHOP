@@ -5,20 +5,10 @@
 
 @section('content')
 
-    <x-admin.button href="{{ route('products.create') }}" color="primary" class="mb-5">
+    <x-admin.button href="{{ route('admin.products.create') }}" color="primary" class="mb-5">
         Thêm Sản Phẩm Mới
     </x-admin.button>
 
-    <x-admin.card class="mb-5">
-        <form action="{{ route('products.index') }}" method="GET" class="flex items-center gap-4">
-            <x-admin.input type="text" name="search" placeholder="Tìm kiếm theo tên sản phẩm..." :value="request('search')" />
-            <x-admin.button type="submit" color="secondary">
-                Tìm Kiếm
-            </x-admin.button>
-        </form>
-    </x-admin.card>
-
-    
     @if (session('success'))
         <x-admin.alert type="success" class="mb-5">
             {{ session('success') }}
@@ -56,10 +46,10 @@
                 </td>
                 <td class="px-6 py-4">{{ $product->category->name ?? 'N/A' }}</td>
                 <td class="px-6 py-4 flex items-center gap-2">
-                    <x-admin.button href="{{ route('products.edit', $product->id) }}" color="info" size="sm">
+                    <x-admin.button href="{{ route('admin.products.edit', $product->id) }}" color="info" size="sm">
                         Sửa
                     </x-admin.button>
-                    <form action="{{ route('products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
+                    <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
                         @csrf
                         @method('DELETE')
                         <x-admin.button type="submit" color="danger" size="sm">

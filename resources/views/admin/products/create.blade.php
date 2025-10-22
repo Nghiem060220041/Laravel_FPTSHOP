@@ -16,7 +16,7 @@
     @endif
 
     <x-admin.card>
-        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" x-data="{ variants: [{ name: '', price: '', quantity: '' }] }">
+        <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" x-data="{ variants: [{ name: '', price: '', quantity: '' }] }">
             @csrf
             
             <h4 class="text-lg font-semibold mb-4">Thông Tin Cơ Bản</h4>
@@ -29,15 +29,28 @@
                 required
             />
             
-            <x-admin.select
-                label="Danh Mục"
-                name="category_id"
-                id="category_id"
-                required
-                :options="$categories->pluck('name', 'id')->toArray()"
-                :selected="old('category_id')"
-                placeholder="-- Chọn Danh Mục --"
-            />
+            <div class="grid grid-cols-2 gap-4">
+                <x-admin.select
+                    label="Danh Mục"
+                    name="category_id"
+                    id="category_id"
+                    required
+                    :options="$categories->pluck('name', 'id')->toArray()"
+                    :selected="old('category_id')"
+                    placeholder="-- Chọn Danh Mục --"
+                />
+                
+                <!-- Thêm trường Brand (Thương hiệu) -->
+                <x-admin.select
+                    label="Thương Hiệu"
+                    name="brand_id"
+                    id="brand_id"
+                    required
+                    :options="$brands->pluck('name', 'id')->toArray()"
+                    :selected="old('brand_id')"
+                    placeholder="-- Chọn Thương Hiệu --"
+                />
+            </div>
             
             <div class="mb-4">
                 <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Mô Tả</label>
@@ -47,6 +60,42 @@
                     rows="5" 
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 >{{ old('description') }}</textarea>
+            </div>
+            
+            <!-- Thêm trường Status (Trạng thái) -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Trạng Thái</label>
+                    <div class="mt-1 flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <input type="radio" id="status_active" name="status" value="1" {{ old('status') == '1' ? 'checked' : '' }} 
+                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                            <label for="status_active" class="ml-2 block text-sm text-gray-700">Hiển thị</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="status_inactive" name="status" value="0" {{ old('status') == '0' ? 'checked' : '' }}
+                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                            <label for="status_inactive" class="ml-2 block text-sm text-gray-700">Ẩn</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Thêm trường Featured (Nổi bật) -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sản Phẩm Nổi Bật</label>
+                    <div class="mt-1 flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <input type="radio" id="featured_yes" name="featured" value="1" {{ old('featured') == '1' ? 'checked' : '' }}
+                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                            <label for="featured_yes" class="ml-2 block text-sm text-gray-700">Có</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="featured_no" name="featured" value="0" {{ old('featured') == '0' ? 'checked' : '' }}
+                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                            <label for="featured_no" class="ml-2 block text-sm text-gray-700">Không</label>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="mb-4">

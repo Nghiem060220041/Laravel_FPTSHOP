@@ -2,105 +2,136 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // Import DB facade
-use Illuminate\Support\Facades\Auth; // Import Auth
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Payment;
-use Cart;
+use App\Models\ProductVariant;
+use Darryldecode\Cart\Facades\CartFacade as Cart;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
 {
+    /**
+     * Hiển thị form thanh toán
+     */
     public function index()
     {
-        // Nếu giỏ hàng trống, chuyển về trang chủ
         if (Cart::isEmpty()) {
-            return redirect()->route('home')->with('error', 'Giỏ hàng của bạn đang trống!');
+            return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn đang trống.');
         }
-        return view('checkout.index');
+
+        $cartItems = Cart::getContent();
+        $total = Cart::getTotal();
+
+        return view('checkout.index', compact('cartItems', 'total'));
     }
 
-    public function success()
-    {
-        if (!session('order_id')) {
-            return redirect()->route('home');
-        }
-        return view('checkout.success');
-    }
-
+    /**
+     * Xử lý đơn hàng
+     */
     public function store(Request $request)
     {
-        // 1. Validate dữ liệu
+        // Kiểm tra giỏ hàng có trống không
+        if (Cart::isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn đang trống.');
+        }
+
+        // Validate dữ liệu đầu vào
         $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'customer_email' => 'required|email|max:255',
-            'customer_phone' => 'required|string|max:20',
-            'customer_address' => 'required|string|max:1000',
-            'payment_method' => 'required|string|in:cod', // Chỉ chấp nhận 'cod'
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:15',
+            'address' => 'required|string|max:255',
+            'city' => 'required|string|max:100',
+            'payment_method' => 'required|in:cod,bank_transfer',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
-        // Nếu giỏ hàng trống, không xử lý
-        if (Cart::isEmpty()) {
-            return redirect()->route('home')->with('error', 'Giỏ hàng của bạn đang trống!');
-        }
+        // Khởi tạo transaction để đảm bảo tính nhất quán dữ liệu
+        DB::beginTransaction();
 
         try {
-            // 2. Bắt đầu một Database Transaction
-            DB::beginTransaction();
+            $cartItems = Cart::getContent();
+            $cartTotal = Cart::getTotal();
 
-            // 3. Tạo đơn hàng (Order)
+            // Tạo đơn hàng mới
             $order = Order::create([
-                'user_id' => Auth::id(), // Lấy user ID đang đăng nhập
-                'customer_name' => $request->customer_name,
-                'customer_email' => $request->customer_email,
-                'customer_phone' => $request->customer_phone,
-                'customer_address' => $request->customer_address,
+                'user_id' => Auth::id(),  // Nếu user đăng nhập
+                'order_number' => 'ORD-' . strtoupper(uniqid()),
+                'status' => 'pending',
+                'total_amount' => $cartTotal,
+                'shipping_name' => $request->name,
+                'shipping_email' => $request->email,
+                'shipping_phone' => $request->phone,
+                'shipping_address' => $request->address,
+                'shipping_city' => $request->city,
                 'notes' => $request->notes,
-                'total_amount' => Cart::getTotal(),
-                'status' => 'pending', // Trạng thái ban đầu
+                'payment_method' => $request->payment_method,
+                'payment_status' => 'pending',
             ]);
 
-            // 4. Lấy các sản phẩm trong giỏ hàng và lưu vào (Order Items)
-            $cartItems = Cart::getContent();
+            $orderTotal = 0;
+
+            // Thêm các sản phẩm trong giỏ hàng vào chi tiết đơn hàng
             foreach ($cartItems as $item) {
-                OrderItem::create([
+                $variant = ProductVariant::find($item->id);
+                
+                // Nếu không tìm thấy variant hoặc số lượng không đủ, rollback transaction
+                if (!$variant || $variant->quantity < $item->quantity) {
+                    DB::rollBack();
+                    
+                    $errorMessage = !$variant 
+                        ? 'Sản phẩm không tồn tại: ' . $item->name 
+                        : 'Sản phẩm ' . $item->name . ' không đủ số lượng trong kho.';
+                        
+                    return redirect()->route('cart.index')->with('error', $errorMessage);
+                }
+                
+                // Tạo chi tiết đơn hàng
+                $orderItem = OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => $item->id,
+                    'product_id' => $item->attributes->product_id,
+                    'product_variant_id' => $item->id,  // ID của variant chính là item id trong giỏ hàng
                     'quantity' => $item->quantity,
                     'price' => $item->price,
+                    'total' => $item->price * $item->quantity,
                 ]);
                 
-                // (Tùy chọn nâng cao: Trừ tồn kho sản phẩm ở đây)
-                // Product::find($item->id)->decrement('quantity', $item->quantity);
+                // Trừ tồn kho
+                $variant->decrement('quantity', $item->quantity);
+                
+                // Cộng dồn vào tổng đơn hàng
+                $orderTotal += $orderItem->total;
             }
-
-            // 5. Tạo bản ghi thanh toán (Payment)
-            Payment::create([
-                'order_id' => $order->id,
-                'method' => $request->payment_method,
-                'amount' => Cart::getTotal(),
-                'status' => 'pending', // Vì là COD nên cũng 'pending'
-            ]);
-
-            // 6. Nếu mọi thứ thành công, commit transaction
+            
+            // Cập nhật lại tổng tiền thực tế của đơn hàng
+            $order->update(['total_amount' => $orderTotal]);
+            
+            // Commit transaction
             DB::commit();
-
-            // 7. Xóa giỏ hàng
+            
+            // Xóa giỏ hàng
             Cart::clear();
-
-            // 8. Chuyển hướng đến trang thành công
-            return redirect()->route('checkout.success')->with('order_id', $order->id);
-
+            
+            // Chuyển hướng đến trang cảm ơn
+            return redirect()->route('checkout.thank-you', $order->id)->with('success', 'Đặt hàng thành công!');
+            
         } catch (\Exception $e) {
-            // 9. Nếu có lỗi, rollback transaction
+            // Rollback transaction nếu có lỗi
             DB::rollBack();
-
-            // Ghi log lỗi (quan trọng)
-            // Log::error('Lỗi khi đặt hàng: ' . $e->getMessage());
-
-            // Và trả về thông báo lỗi
-            return back()->with('error', 'Đã có lỗi xảy ra khi xử lý đơn hàng của bạn. Vui lòng thử lại.');
+            
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi xử lý đơn hàng: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Hiển thị trang cảm ơn sau khi đặt hàng thành công
+     */
+    public function thankYou($orderId)
+    {
+        $order = Order::with(['items.product', 'items.variant'])->findOrFail($orderId);
+        
+        return view('checkout.thank-you', compact('order'));
     }
 }

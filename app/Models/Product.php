@@ -18,10 +18,10 @@ class Product extends Model
         'name',
         'slug',
         'description',
-        'price',
         'category_id',
-        'quantity',
+        'brand_id',
         'status',
+        'featured',
         'image'
     ];
 
@@ -29,6 +29,11 @@ class Product extends Model
     {
         // Một sản phẩm thuộc về một danh mục
         return $this->belongsTo(Category::class);
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
     }
 
     public function reviews()
@@ -81,6 +86,4 @@ class Product extends Model
     {
         return $this->hasMany(ProductVariant::class);
     }
-
-    public function brand() { /* ... */ }
 }

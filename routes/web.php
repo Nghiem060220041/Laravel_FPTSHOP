@@ -14,7 +14,10 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CouponController;
 
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', function() {
+    $featuredProducts = \App\Models\Product::with('variants')->take(8)->get();
+    return view('home', compact('featuredProducts'));
+})->name('home');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -29,18 +32,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
     
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-    Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
-});
+    Route::get('/checkout/thank-you/{order}', [CheckoutController::class, 'thankYou'])->name('checkout.thank-you');
 
-// Cart routes
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
-Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+});
+// Giỏ hàng routes
+Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [App\Http\Controllers\CartController::class, 'store'])->name('cart.store');
+Route::put('/cart/update/{id}', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/remove/{id}', [App\Http\Controllers\CartController::class, 'destroy'])->name('cart.destroy');
+Route::get('/cart/clear', [App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
 
 
 Route::get('/about', [App\Http\Controllers\PageController::class, 'about'])->name('about');
@@ -55,26 +57,29 @@ Route::get('/return-policy', [App\Http\Controllers\SupportController::class, 're
 Route::get('/shipping-payment', [App\Http\Controllers\SupportController::class, 'shippingPayment'])->name('support.shipping-payment');
 
 //admin
-Route::prefix('admin')
-    ->middleware(['auth', 'role:Super Admin'])
-    ->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     
-    Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-
-    Route::resource('products', ProductController::class)->except(['show']);
+    // Sửa đường dẫn resource
+    Route::resource('products', ProductController::class); // Sử dụng class tương tự như các controller khác
     Route::resource('categories', CategoryController::class)->except(['show']);
     Route::resource('coupons', CouponController::class)->except(['show']);
     
-    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     
-    Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('admin.orders.show');
-    Route::get('/stats/revenue-7-days', [DashboardController::class, 'revenueStats'])->name('admin.stats.revenue');
-    Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('/stats/revenue-7-days', [DashboardController::class, 'revenueStats'])->name('stats.revenue');
+    Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
 });
 
+// Thêm hoặc sửa route cho chi tiết sản phẩm
+Route::get('/products/{slug}', [\App\Http\Controllers\ProductController::class, 'show'])->name('products.show');
+
+// Route cho danh mục sản phẩm
+Route::get('/categories/{slug}', [\App\Http\Controllers\CategoryController::class, 'show'])->name('categories.show');
 
 
 require __DIR__.'/auth.php';

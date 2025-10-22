@@ -17,23 +17,30 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'product_id',
+        'product_variant_id',  // Thêm trường này
         'quantity',
-        'price'
+        'price',
+        'total',
+        'options'
     ];
-    
+
+    protected $casts = [
+        'options' => 'array',
+    ];
+
     public function order()
     {
         return $this->belongsTo(Order::class);
     }
 
-  
     public function product()
     {
         return $this->belongsTo(Product::class);
     }
 
-    public function getSubtotalAttribute()
+    // Thêm quan hệ này
+    public function variant()
     {
-        return $this->quantity * $this->price;
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
     }
 }

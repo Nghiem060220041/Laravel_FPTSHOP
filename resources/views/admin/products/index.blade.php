@@ -4,15 +4,21 @@
 @section('header_title', 'Danh Sách Sản Phẩm')
 
 @section('content')
-<<<<<<< HEAD
+
     <x-admin.button href="{{ route('products.create') }}" color="primary" class="mb-5">
         Thêm Sản Phẩm Mới
     </x-admin.button>
-    
-=======
-    <a href="{{ route('products.create') }}" style="display: inline-block; padding: 10px 15px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px;">Thêm Sản Phẩm Mới</a>
 
->>>>>>> b0ea778f96b426b5ad8e5267f9447ef91272b0ac
+    <x-admin.card class="mb-5">
+        <form action="{{ route('products.index') }}" method="GET" class="flex items-center gap-4">
+            <x-admin.input type="text" name="search" placeholder="Tìm kiếm theo tên sản phẩm..." :value="request('search')" />
+            <x-admin.button type="submit" color="secondary">
+                Tìm Kiếm
+            </x-admin.button>
+        </form>
+    </x-admin.card>
+
+    
     @if (session('success'))
         <x-admin.alert type="success" class="mb-5">
             {{ session('success') }}
@@ -22,7 +28,7 @@
     <x-admin.table :headers="['ID', 'Hình Ảnh', 'Tên Sản Phẩm', 'Giá Biến Thể (VNĐ)', 'Tổng Tồn Kho', 'Danh Mục', 'Hành Động']">
         @forelse ($products as $product)
             <tr>
-<<<<<<< HEAD
+
                 <td class="px-6 py-4">{{ $product->id }}</td>
                 <td class="px-6 py-4">
                     @if($product->image)
@@ -83,68 +89,5 @@
         </div>
     </div>
     @endif
-=======
-                <th>ID</th>
-                <th>Hình Ảnh</th>
-                <th>Tên Sản Phẩm</th>
-                <th>Mô Tả</th> {{-- <- THÊM LẠI TIÊU ĐỀ CỘT --}}
-                <th>Giá Biến Thể (VNĐ)</th>
-                <th>Tổng Tồn Kho</th>
-                <th>Danh Mục</th>
-                <th>Hành Động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($products as $product)
-                <tr>
-                    <td>{{ $product->id }}</td>
-                    <td>
-                        @if($product->image)
-                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" width="100">
-                        @else
-                            <span>Không có ảnh</span>
-                        @endif
-                    </td>
-                    <td>{{ $product->name }}</td>
-                    
-                    {{-- THÊM LẠI CỘT DỮ LIỆU MÔ TẢ --}}
-                    <td>
-                        {{ \Illuminate\Support\Str::limit($product->description, 50, '...') }}
-                    </td>
-                    
-                    <td>
-                        @if($product->variants->isNotEmpty())
-                            {{ number_format($product->variants->min('price')) }}
-                            -
-                            {{ number_format($product->variants->max('price')) }}
-                        @else
-                            <span style="color: #888;">Chưa có biến thể</span>
-                        @endif
-                    </td>
-                    <td>
-                        @if($product->variants->isNotEmpty())
-                            {{ $product->variants->sum('quantity') }}
-                        @else
-                            0
-                        @endif
-                    </td>
-                    <td>{{ $product->category->name ?? 'N/A' }}</td>
-                    <td style="display: flex; align-items: center; gap: 10px;">
-                        <a href="{{ route('products.edit', $product->id) }}">Sửa</a>
-                        <form action="{{ route('products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" style="background:none; border:none; color:red; cursor:pointer; padding:0;">Xóa</button>
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="8" style="text-align: center;">Chưa có sản phẩm nào.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-    <div style="margin-top: 20px;">{{ $products->links() }}</div>
->>>>>>> b0ea778f96b426b5ad8e5267f9447ef91272b0ac
+
 @endsection

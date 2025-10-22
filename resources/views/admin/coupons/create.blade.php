@@ -38,6 +38,13 @@
             
             <x-admin.input
                 type="date"
+                label="Ngày Bắt Đầu (Bỏ trống nếu áp dụng ngay)"
+                name="starts_at"
+                value="{{ old('starts_at') }}"
+            />
+            
+            <x-admin.input
+                type="date"
                 label="Ngày Hết Hạn (Bỏ trống nếu không hết hạn)"
                 name="expires_at"
                 value="{{ old('expires_at') }}"

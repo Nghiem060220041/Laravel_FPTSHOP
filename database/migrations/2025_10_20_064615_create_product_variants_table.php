@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->string('name'); // Ví dụ: "Xanh Titan - 256GB"
+            $table->json('attributes')->nullable();
             $table->decimal('price', 10, 2); // Giá của riêng nó
             $table->integer('quantity')->default(0); // Số lượng tồn kho của nó
             $table->timestamps();

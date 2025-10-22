@@ -25,16 +25,18 @@ class CouponController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'code' => 'required|string|unique:coupons,code|max:255',
+            'code' => 'required|string|max:50|unique:coupons',
             'type' => 'required|in:fixed,percent',
             'value' => 'required|numeric|min:0',
-            'expires_at' => 'nullable|date|after:today',
+            'starts_at' => 'nullable|date',
+            'expires_at' => 'nullable|date',
             'usage_limit' => 'nullable|integer|min:1',
         ]);
 
         Coupon::create($validatedData);
 
-        return redirect()->route('coupons.index')->with('success', 'Tạo mã giảm giá thành công!');
+        return redirect()->route('coupons.index')
+            ->with('success', 'Mã giảm giá đã được tạo thành công.');
     }
 
     // Hiển thị form chỉnh sửa
@@ -47,16 +49,18 @@ class CouponController extends Controller
     public function update(Request $request, Coupon $coupon)
     {
         $validatedData = $request->validate([
-            'code' => 'required|string|max:255|unique:coupons,code,' . $coupon->id,
+            'code' => 'required|string|max:50|unique:coupons,code,' . $coupon->id,
             'type' => 'required|in:fixed,percent',
             'value' => 'required|numeric|min:0',
+            'starts_at' => 'nullable|date',
             'expires_at' => 'nullable|date',
             'usage_limit' => 'nullable|integer|min:1',
         ]);
 
         $coupon->update($validatedData);
 
-        return redirect()->route('coupons.index')->with('success', 'Cập nhật mã giảm giá thành công!');
+        return redirect()->route('coupons.index')
+            ->with('success', 'Mã giảm giá đã được cập nhật thành công.');
     }
 
     // Xóa mã

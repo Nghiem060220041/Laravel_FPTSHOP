@@ -13,18 +13,37 @@
         </x-admin.alert>
     @endif
 
-    <x-admin.table :headers="['Mã (Code)', 'Loại', 'Giá trị', 'Ngày hết hạn', 'Đã dùng / Giới hạn', 'Hành Động']">
+    <x-admin.table :headers="['Mã (Code)', 'Loại', 'Giá trị', 'Ngày bắt đầu', 'Ngày hết hạn', 'Đã dùng / Giới hạn', 'Hành Động']">
         @forelse ($coupons as $coupon)
-            <tr>
-                <td class="px-6 py-4 font-bold text-blue-600">{{ $coupon->code }}</td>
+            @php
+                $isExpired = $coupon->expires_at && $coupon->expires_at->isPast();
+                $isUsageLimitReached = $coupon->usage_limit !== null && $coupon->times_used >= $coupon->usage_limit;
+                $isNotYetActive = isset($coupon->starts_at) && $coupon->starts_at && $coupon->starts_at->isFuture(); 
+                $isInactive = $isExpired || $isUsageLimitReached || $isNotYetActive;
+            @endphp
+            
+            <tr class="{{ $isInactive ? 'text-gray-400 line-through' : '' }}">
+                <td class="px-6 py-4 font-bold {{ $isInactive ? 'text-gray-400' : 'text-blue-600' }}">
+                    {{ $coupon->code }}
+                    @if ($isNotYetActive)
+                        <span class="block text-xs text-cyan-600">Chưa có hiệu lực</span>
+                    @elseif ($isExpired)
+                        <span class="block text-xs text-red-600">Hết hạn</span>
+                    @elseif ($isUsageLimitReached)
+                        <span class="block text-xs text-amber-600">Hết lượt dùng</span>
+                    @endif
+                </td>
                 <td class="px-6 py-4">{{ $coupon->type == 'fixed' ? 'Số tiền' : 'Phần trăm (%)' }}</td>
                 <td class="px-6 py-4">{{ $coupon->type == 'fixed' ? number_format($coupon->value) . ' VNĐ' : $coupon->value . ' %' }}</td>
+                <td class="px-6 py-4">{{ isset($coupon->starts_at) && $coupon->starts_at ? $coupon->starts_at->format('d/m/Y') : 'Luôn có hiệu lực' }}</td>
                 <td class="px-6 py-4">{{ $coupon->expires_at ? $coupon->expires_at->format('d/m/Y') : 'Không hết hạn' }}</td>
                 <td class="px-6 py-4">{{ $coupon->times_used }} / {{ $coupon->usage_limit ?? '∞' }}</td>
                 <td class="px-6 py-4 flex items-center gap-2">
-                    <x-admin.button href="{{ route('coupons.edit', $coupon->id) }}" color="info" size="sm">
-                        Sửa
-                    </x-admin.button>
+                    @if (!$isExpired)
+                        <x-admin.button href="{{ route('coupons.edit', $coupon->id) }}" color="info" size="sm">
+                            Sửa
+                        </x-admin.button>
+                    @endif
                     <form action="{{ route('coupons.destroy', $coupon->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa?');">
                         @csrf
                         @method('DELETE')
@@ -36,7 +55,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="6" class="px-6 py-4 text-center">Chưa có mã giảm giá nào.</td>
+                <td colspan="7" class="px-6 py-4 text-center">Chưa có mã giảm giá nào.</td>
             </tr>
         @endforelse
     </x-admin.table>

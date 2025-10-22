@@ -78,7 +78,6 @@
                             x-model="variant.name" 
                             placeholder="Tên biến thể (VD: Đỏ, 256GB)" 
                             class="flex-3 p-2 border border-gray-300 rounded-md"
-                            required
                         >
                         <input 
                             type="number" 

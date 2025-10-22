@@ -39,6 +39,13 @@
             
             <x-admin.input
                 type="date"
+                label="Ngày Bắt Đầu (Bỏ trống nếu áp dụng ngay)"
+                name="starts_at"
+                value="{{ old('starts_at', isset($coupon->starts_at) ? $coupon->starts_at->format('Y-m-d') : '') }}"
+            />
+            
+            <x-admin.input
+                type="date"
                 label="Ngày Hết Hạn (Bỏ trống nếu không hết hạn)"
                 name="expires_at"
                 value="{{ old('expires_at', $coupon->expires_at ? $coupon->expires_at->format('Y-m-d') : '') }}"
